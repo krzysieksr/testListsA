@@ -326,15 +326,65 @@ public class TestArrayAndLinkedList {
     }
 
     @Test(dataProvider = "provideListImpl")
-    public static void testIteratorThrowsConcurrentModificationException(){
+    public static void testIteratorThrowsConcurrentModificationException(List list) {
         //given
-
+        list.add("A");
+        list.add("B");
+        list.add("C");
 
         // when
+        Iterator iterator = list.iterator();
+        boolean flag = false;
+        try {
+            while (iterator.hasNext()) {
+                iterator.next();
+                list.add("Y");
+            }
+        } catch (ConcurrentModificationException e) {
+            flag = true;
+        }
 
         // then
-        assert :"";
+        assert flag : "ConcurrentModificationException not thrown";
     }
+
+    @Test(dataProvider = "provideListImpl")
+    public static void testLastIndexOf(List list) {
+        //given
+        list.add("A");
+        list.add("B");
+        list.add("C");
+        list.add("D");
+        list.add("B");
+        list.add("E");
+
+        // when
+        int resultIndex = list.lastIndexOf("E");
+
+        // then
+        assert resultIndex == 5 : "Expected different last index of specified element";
+    }
+
+//    @Test(dataProvider = "provideListImpl")
+//    public static void testLastIndexOfMethodForNotExistingElement(){
+//        //given
+//
+//
+//        // when
+//
+//        // then
+//        assert :"";
+//    }
+//
+//    @Test(dataProvider = "provideListImpl")
+//    public static void testLastIndexOfEmptyList() {
+//        //given
+//
+//        // when
+//
+//        // then
+//        assert :"";
+//    }
 
 
 }
