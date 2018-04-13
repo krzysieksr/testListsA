@@ -9,8 +9,8 @@ public class TestArrayAndLinkedList {
     @DataProvider(name = "provideListImpl")
     public Object[] provideData() {
 
-        return new Object[]{new ArrayList<String>(),
-                new LinkedList<String>()};
+        return new Object[]{new ArrayList<>(),
+                new LinkedList<>()};
 
     }
 
@@ -365,22 +365,305 @@ public class TestArrayAndLinkedList {
         assert resultIndex == 5 : "Expected different last index of specified element";
     }
 
-//    @Test(dataProvider = "provideListImpl")
-//    public static void testLastIndexOfMethodForNotExistingElement(){
-//        //given
-//
-//
-//        // when
-//
+    @Test(dataProvider = "provideListImpl")
+    public static void testLastIndexOfMethodForNotExistingElement(List list) {
+        //given
+        list.add("A");
+        list.add("B");
+        list.add("C");
+
+
+        // when
+        int resultIndex = list.lastIndexOf("E");
+
+        // then
+        assert resultIndex == -1 : "Unexpected element found on list";
+    }
+
+    @Test(dataProvider = "provideListImpl")
+    public static void testLastIndexOfEmptyList(List list) {
+        //given
+
+        // when
+        int resultIndex = list.lastIndexOf("X");
+
+        // then
+        assert resultIndex == -1 : "List is empty. Non index should be found";
+    }
+
+    @Test(dataProvider = "provideListImpl")
+    public static void testListIterator(List list) {
+        //given
+        list.add("A");
+        list.add("B");
+        list.add("C");
+
+        //when
+        ListIterator iterator = list.listIterator();
+
+        // then
+
+        assert iterator instanceof ListIterator : "Unexpected class instance";
+    }
+
+    @Test(dataProvider = "provideListImpl")
+    public static void testListIteratorForSelectedIndex(List list) {
+        //given
+        list.add("A");
+        list.add("B");
+        list.add("C");
+
+        // when
+        ListIterator iterator = list.listIterator(2);
+
+        // then
+        assert iterator instanceof ListIterator : "Unexpected class instance";
+    }
+
+    @Test(dataProvider = "provideListImpl")
+    public static void testListIteratorForIndexOutOfBound(List list) {
+        //given
+        list.add("A");
+        list.add("B");
+        list.add("C");
+
+        // when
+        boolean flag = false;
+        try {
+            list.listIterator(4);
+        } catch (IndexOutOfBoundsException e) {
+            flag = true;
+        }
+
+        // then
+        assert flag : "IndexOutOfBoundsException not thrown";
+    }
+
+    @Test(dataProvider = "provideListImpl")
+    public static void testRemoveElementAtSpecifiedIndex(List list) {
+        //given
+        list.add("A");
+        list.add("B");
+        list.add("C");
+
+        // when
+        list.remove(2);
+
+        // then
+        assert list.size() == 2 : "Wrong size of list";
+        assert list.get(1).equals("B") : "Unexpected element at specified index";
+    }
+
+    @Test(dataProvider = "provideListImpl")
+    public static void testRemoveForIndexOutOfBound(List list) {
+        //given
+        list.add("A");
+        list.add("B");
+        list.add("C");
+
+        // when
+        boolean flag = false;
+        try {
+            list.remove(4);
+        } catch (IndexOutOfBoundsException e) {
+            flag = true;
+        }
+
+
+        // then
+        assert flag : "IndexOutOfBoundsException not thrown";
+    }
+
+    @Test(dataProvider = "provideListImpl")
+    public static void testRemoveSpecifiedObject(List list) {
+        //given
+        list.add("A");
+        list.add("B");
+        list.add("C");
+
+        // when
+        boolean result = list.remove("B");
+
+        // then
+        assert list.size() == 2 : "Unexpected list size";
+        assert result : "Unexpected remove method result";
+    }
+
+    @Test(dataProvider = "provideListImpl")
+    public static void testRemoveNotExistingObjectOnList(List list) {
+        //given
+        list.add("A");
+        list.add("B");
+        list.add("C");
+
+        // when
+        boolean result = list.remove("X");
+
+        // then
+        assert list.size() == 3 : "Unexpected list size";
+        assert !result : "Unexpected remove method result";
+    }
+
+    @Test(dataProvider = "provideListImpl")
+    public static void testRemoveAllElementFromListContainedInOtherCollection(List list) {
+        //given
+        list.add("A");
+        list.add("B");
+        list.add("C");
+
+        List elementsToRemove = Arrays.asList("A", "C");
+
+        // when
+        boolean result = list.removeAll(elementsToRemove);
+
+        // then
+        assert list.size() == 1 : "Unexpected list size";
+        assert result : "Unexpected remove method result";
+    }
+
+
+    @Test(dataProvider = "provideListImpl")
+    public static void testRemoveAllForTwoDifferentLists(List list) {
+        //given
+        list.add("A");
+        list.add("B");
+        list.add("C");
+
+        List elementsToRemove = Arrays.asList("X", "Y");
+
+        // when
+        boolean result = list.removeAll(elementsToRemove);
+
+        // then
+        assert list.size() == 3 : "Unexpected list size";
+        assert !result : "Unexpected remove method result";
+    }
+
+    @Test(dataProvider = "provideListImpl")
+    public static void testReplaceAll(List list) {
+        //given
+        list.add("A");
+        list.add("B");
+        list.add("C");
+        List controlList = Arrays.asList("AX", "BX", "CX");
+
+        // when
+        list.replaceAll(element -> element = element.toString() + "X");
+
+        // then
+        assert list.equals(controlList) : "Wrong replacement";
+        assert list.size() == 3 : "Unexpected size";
+    }
+
+    @Test(dataProvider = "provideListImpl")
+    public static void testRetainAll(List list) {
+        //given
+        list.add("A");
+        list.add("B");
+        list.add("C");
+        List controlList = Arrays.asList("B");
+
+        // when
+        boolean result = list.retainAll(controlList);
+
+
+        // then
+        assert result : "Unexpected method result";
+        assert list.size() == 1 : "Unexpected list size";
+        assert list.get(0).equals("B") : "Unexpected object on list";
+    }
+
+    @Test(dataProvider = "provideListImpl")
+    public static void testRetainAllDoesNotModifyList(List list) {
+        //given
+        list.add("A");
+        list.add("B");
+        list.add("C");
+        List controlList = Arrays.asList("A", "B", "C");
+
+        // when
+        boolean result = list.retainAll(controlList);
+
+
 //        // then
-//        assert :"";
-//    }
-//
+        assert !result : "Expected list is unmodified";
+        assert list.size() == 3 : "Unexpected list size";
+    }
+
+    @Test(dataProvider = "provideListImpl")
+    public static void testSetToExistingIndex(List list) {
+        //given
+        list.add("A");
+        list.add("B");
+        list.add("C");
+
+        // when
+        list.set(0, "Y");
+
+        // then
+        assert list.get(0).equals("Y") : "Unexpected element at specified index";
+        assert list.size() == 3 : "Wrong size of list";
+    }
+
+    @Test(dataProvider = "provideListImpl")
+    public static void testSetToNotExistingIndex(List list) {
+        //given
+        list.add("A");
+        list.add("B");
+        list.add("C");
+
+        // when
+        boolean flag = false;
+        try {
+            list.set(5, "Y");
+        } catch (IndexOutOfBoundsException e) {
+            flag = true;
+        }
+
+        // then
+        assert flag : "IndexOutOfBoundsException not thrown";
+    }
+
+    @Test(dataProvider = "provideListImpl")
+    public static void testSizeOfList(List list) {
+        //given
+        list.add("A");
+        list.add("B");
+        list.add("C");
+
+        // when
+        int result = list.size();
+
+        // then
+        assert result == 3 : "Unexpected size of list";
+    }
+
+    @Test(dataProvider = "provideListImpl")
+    public static void testSort(List list) {
+        //given
+        list.add("B");
+        list.add("F");
+        list.add("A");
+        list.add("H");
+        List controlList = Arrays.asList("A", "B", "F", "H");
+
+        Comparator listComparator = (o1, o2) -> o1.toString().compareTo(o2.toString());
+
+        // when
+        list.sort(listComparator);
+
+        // then
+        assert list.equals(controlList) : "List has been sorted wrong";
+    }
+
 //    @Test(dataProvider = "provideListImpl")
-//    public static void testLastIndexOfEmptyList() {
+//    public static void testSpliterator(List list){
 //        //given
-//
+//        list.add("A");
+//        list.add("B");
+//        list.add("C");
 //        // when
+//        Spliterator spliterator=list.spliterator();
 //
 //        // then
 //        assert :"";
