@@ -2,6 +2,7 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 public class TestArrayAndLinkedList {
@@ -22,9 +23,9 @@ public class TestArrayAndLinkedList {
         list.add("B");
 
         // then
-        Assert.assertEquals(list.get(0), "A");
-        Assert.assertEquals(list.get(1), "B");
-        Assert.assertEquals(list.size(), 2);
+        assert list.get(0).equals("A") : "Unexpected object";
+        assert list.get(1).equals("B") : "Unexpected object";
+        assert list.size() == 2 : "Wrong size";
     }
 
     @Test(dataProvider = "provideListImpl")
@@ -38,8 +39,8 @@ public class TestArrayAndLinkedList {
         list.add(1, "Z");
 
         // then
-        Assert.assertEquals(list.get(1), "Z");
-        Assert.assertEquals(list.size(), 4);
+        assert list.get(1).equals("Z") : "Unexpected element";
+        assert list.size() == 4 : "Unexpected size";
     }
 
     @Test(dataProvider = "provideListImpl", expectedExceptions = {IndexOutOfBoundsException.class})
@@ -66,8 +67,8 @@ public class TestArrayAndLinkedList {
         list.addAll(strings);
 
         // then
-        Assert.assertEquals(list.size(), 5);
-        Assert.assertEquals(list.get(2), "A");
+        assert list.size() == 5 : "Unexpected size";
+        assert list.get(2).equals("A") : "Unexpected element";
     }
 
 
@@ -89,6 +90,25 @@ public class TestArrayAndLinkedList {
         assert flag : "NullPointerException not thrown";
     }
 
+
+    @Test(dataProvider = "provideListImpl")
+    public static void testAddAllAndThrowUnsupportedOperationException(List list) {
+        //given
+        list.add("X");
+        list.add("Y");
+
+        //when and then
+        boolean flag = false;
+        List<Integer> controlList = Arrays.asList(1, 2, 3);
+        try {
+            controlList.addAll(list);
+        } catch (UnsupportedOperationException e) {
+            flag = true;
+        }
+
+        assert flag : "UnsupportedOperationException not thrown";
+    }
+
     @Test(dataProvider = "provideListImpl")
     public static void testAddAllFromSpecifiedIndex(List list) {
         //given
@@ -102,6 +122,25 @@ public class TestArrayAndLinkedList {
         // then
         assert list.size() == 5 : "Wrong size of list";
         assert list.get(2).equals("A") : "Wrong argument at 2nd index";
+    }
+
+    @Test(dataProvider = "provideListImpl")
+    public static void testAddAllAndThrowIndexOutOfBoundsException(List list) {
+        //given
+        list.add("X");
+        list.add("Y");
+
+        // when
+        List<String> strings = Arrays.asList("A", "B", "C");
+        boolean flag = false;
+        try {
+            list.addAll(5, strings);
+        } catch (IndexOutOfBoundsException e) {
+            flag = true;
+        }
+
+        // then
+        assert flag : "IndexOutOfBoundsException not thrown";
     }
 
 
@@ -120,6 +159,23 @@ public class TestArrayAndLinkedList {
     }
 
     @Test(dataProvider = "provideListImpl")
+    public static void testClearAndThrowUnsupportedOperationException(List list) {
+        //given
+        list = Collections.unmodifiableList(list);
+
+        // when
+        boolean flag = false;
+        try {
+            list.clear();
+        } catch (UnsupportedOperationException e) {
+            flag = true;
+        }
+
+        // then
+        assert flag : "UnsupportedOperationException not thrown";
+    }
+
+    @Test(dataProvider = "provideListImpl")
     public static void testContains(List list) {
         //given
         list.add("A");
@@ -131,11 +187,29 @@ public class TestArrayAndLinkedList {
         assert !list.contains("X") : "List contains unexpected element";
     }
 
+    @Test
+    public static void testContainsAndThrowNullPointerException() {
+        //given
+        List list = null;
+
+        // when
+        boolean flag = false;
+        try {
+            list.contains("X");
+        } catch (NullPointerException e) {
+            flag = true;
+        }
+
+        //then
+        assert flag : "NullPointerException not thrown";
+    }
+
     @Test(dataProvider = "provideListImpl")
     public static void testContainsAll(List list) {
         //given
         list.add("A");
-        list = Arrays.asList("A", "B", "C", "D");
+        list.add("B");
+        list.add("C");
         List list1 = Arrays.asList("A", "B");
 
         // when and then
@@ -146,12 +220,31 @@ public class TestArrayAndLinkedList {
     public static void testListDoesNotContainAllOtherList(List list) {
         //given
         list.add("A");
-        list = Arrays.asList("A", "B", "C", "D");
+        list.add("B");
+        list.add("C");
         List list1 = Arrays.asList("X", "Y");
 
         // when and then
         assert !list.containsAll(list1) : "List contains unexpected list";
     }
+
+    @Test
+    public static void testContainsAllAndThrowNullPointerException() {
+        //given
+        List list = null;
+
+        //when
+        boolean flag = false;
+        try {
+            list.containsAll(Arrays.asList("X", "Y"));
+        } catch (NullPointerException e) {
+            flag = true;
+        }
+
+        // then
+        assert flag : "NullPointerException not thrown";
+    }
+
 
     @Test(dataProvider = "provideListImpl")
     public static void testEqualsLists(List list) {
@@ -256,6 +349,23 @@ public class TestArrayAndLinkedList {
     }
 
 
+    @Test
+    public static void testIndexOfAndThrowNullPointerException() {
+        //given
+        List list = null;
+
+        // when
+        boolean flag = false;
+        try {
+            list.indexOf("x");
+        } catch (NullPointerException e) {
+            flag = true;
+        }
+
+        // then
+        assert flag : "NullPointerException not thrown";
+    }
+
     @Test(dataProvider = "provideListImpl")
     public static void testIndexOfNotExistingElement(List list) {
         //given
@@ -304,29 +414,7 @@ public class TestArrayAndLinkedList {
 
 
     @Test(dataProvider = "provideListImpl")
-    public static void testIteratingListContainingElements(List list) {
-        //given
-        list.add("A");
-        list.add("B");
-        list.add("C");
-
-        // when
-        Object[] resultArray = new Object[3];
-        int counter = 0;
-        Iterator iterator = list.iterator();
-        while (iterator.hasNext()) {
-            resultArray[counter] = iterator.next();
-            counter++;
-        }
-
-
-        // then
-        assert counter == 3 : "Wrong amount of iteration";
-        assert resultArray[1].equals("B") : "unexpected element";
-    }
-
-    @Test(dataProvider = "provideListImpl")
-    public static void testIteratorThrowsConcurrentModificationException(List list) {
+    public static void testIterator(List list) {
         //given
         list.add("A");
         list.add("B");
@@ -334,18 +422,9 @@ public class TestArrayAndLinkedList {
 
         // when
         Iterator iterator = list.iterator();
-        boolean flag = false;
-        try {
-            while (iterator.hasNext()) {
-                iterator.next();
-                list.add("Y");
-            }
-        } catch (ConcurrentModificationException e) {
-            flag = true;
-        }
 
         // then
-        assert flag : "ConcurrentModificationException not thrown";
+        assert iterator instanceof Iterator : "Wring instance";
     }
 
     @Test(dataProvider = "provideListImpl")
@@ -378,6 +457,24 @@ public class TestArrayAndLinkedList {
 
         // then
         assert resultIndex == -1 : "Unexpected element found on list";
+    }
+
+    @Test(dataProvider = "provideListImpl")
+    public static void testLastIndexOfAndThrowNullPointerException(List list) {
+        //given
+        list = null;
+
+
+        // when
+        boolean flag = false;
+        try {
+            list.lastIndexOf("E");
+        } catch (NullPointerException e) {
+            flag = true;
+        }
+
+        // then
+        assert flag : "NullPointerException not thrown";
     }
 
     @Test(dataProvider = "provideListImpl")
@@ -475,6 +572,42 @@ public class TestArrayAndLinkedList {
     }
 
     @Test(dataProvider = "provideListImpl")
+    public static void testRemoveAndThrowNullPointerException(List list) {
+        //given
+        list = null;
+
+        // when
+        boolean flag = false;
+        try {
+            list.remove(4);
+        } catch (NullPointerException e) {
+            flag = true;
+        }
+
+
+        // then
+        assert flag : "NullPointerException not thrown";
+    }
+
+
+    @Test
+    public static void testRemoveAndThrowUnsupportedOperationException() {
+        //given
+        List list = Arrays.asList("x", "y", "z");
+
+        //when
+        boolean flag = false;
+        try {
+            list.remove(1);
+        } catch (UnsupportedOperationException e) {
+            flag = true;
+        }
+
+        // then
+        assert flag : "UnsupportedOperationException not thrown";
+    }
+
+    @Test(dataProvider = "provideListImpl")
     public static void testRemoveSpecifiedObject(List list) {
         //given
         list.add("A");
@@ -488,6 +621,25 @@ public class TestArrayAndLinkedList {
         assert list.size() == 2 : "Unexpected list size";
         assert result : "Unexpected remove method result";
     }
+
+    @Test
+    public static void testRemoveSpecifiedObjectAndThrowNullPointerException() {
+        //given
+        List list = null;
+
+        // when
+        boolean flag = false;
+        try {
+            list.remove("X");
+        } catch (NullPointerException e) {
+            flag = true;
+        }
+
+
+        // then
+        assert flag : "NullPointerException not thrown";
+    }
+
 
     @Test(dataProvider = "provideListImpl")
     public static void testRemoveNotExistingObjectOnList(List list) {
@@ -591,6 +743,42 @@ public class TestArrayAndLinkedList {
     }
 
     @Test(dataProvider = "provideListImpl")
+    public static void testRetainAllThrowsNullPointerException(List list) {
+        //given
+        list.add("A");
+        list.add("B");
+        list.add("C");
+        List controlList = null;
+        // when
+        boolean flag = false;
+        try {
+            list.retainAll(controlList);
+        } catch (NullPointerException e) {
+            flag = true;
+        }
+
+        // then
+        assert flag : "NullPointerException not thrown";
+    }
+
+    @Test
+    public static void testRetainAll() {
+        //given
+        List list = Arrays.asList("A", "B", "C");
+        List controlList = Arrays.asList("A", "B");
+
+        // when
+        boolean flag = false;
+        try {
+            list.retainAll(controlList);
+        } catch (UnsupportedOperationException e) {
+            flag = true;
+        }
+        // then
+        assert flag : "UnsupportedOperationException not thrown";
+    }
+
+    @Test(dataProvider = "provideListImpl")
     public static void testSetToExistingIndex(List list) {
         //given
         list.add("A");
@@ -656,18 +844,107 @@ public class TestArrayAndLinkedList {
         assert list.equals(controlList) : "List has been sorted wrong";
     }
 
-//    @Test(dataProvider = "provideListImpl")
-//    public static void testSpliterator(List list){
-//        //given
-//        list.add("A");
-//        list.add("B");
-//        list.add("C");
-//        // when
-//        Spliterator spliterator=list.spliterator();
-//
-//        // then
-//        assert :"";
-//    }
+    @Test(dataProvider = "provideListImpl")
+    public static void testSpliterator(List list) {
+        //given
+        list.add("A");
+        list.add("B");
+        list.add("C");
+        // when
+        Spliterator spliterator = list.spliterator();
+
+        // then
+        assert spliterator instanceof Spliterator : "Wrong class instance";
+    }
+
+    @Test(dataProvider = "provideListImpl")
+    public static void testSubListForRangeInBounds(List list) {
+        //given
+        list.add("A");
+        list.add("B");
+        list.add("C");
+        list.add("F");
+        list.add("G");
+
+        // when
+        List subList = list.subList(1, 4);
+        // then
+        assert subList.containsAll(Arrays.asList("B", "C", "F")) : "Unexpected subList";
+    }
+
+    @Test(dataProvider = "provideListImpl")
+    public static void testSubListForRangeOutOfBounds(List list) {
+        //given
+        list.add("A");
+        list.add("B");
+        list.add("C");
+        list.add("F");
+        list.add("G");
+
+        // when
+        boolean flag = false;
+        try {
+            list.subList(1, 8);
+        } catch (IndexOutOfBoundsException e) {
+            flag = true;
+
+        }
+
+        // then
+        assert flag : "Exception not thrown";
+    }
+
+    @Test(dataProvider = "provideListImpl")
+    public static void testToArray(List list) {
+        //given
+        list.add("A");
+        list.add("B");
+        list.add("C");
+        list.add("F");
+
+        // when
+        Object[] array = list.toArray(new String[list.size()]);
+
+        // then
+        assert array.length == 4 : "Unexpected array size";
+        assert list.get(2).equals("C") : "Wrong element at specified index";
+    }
+
+    @Test(dataProvider = "provideListImpl")
+    public static void testToArrayForWrongType(List list) {
+        //given
+        list.add("A");
+        list.add("B");
+        list.add("C");
+        list.add("F");
+
+
+        // when
+        boolean flag = false;
+        try {
+            Object[] array = list.toArray(new Integer[list.size()]);
+        } catch (ArrayStoreException e) {
+            flag = true;
+        }
+        // then
+        assert flag : "ArrayStoreException not thrown";
+    }
+
+
+    @Test(dataProvider = "provideListImpl")
+    public static void testToArrayForNullArray(List list) {
+        //given
+
+        // when
+        boolean flag = false;
+        try {
+            list.toArray(null);
+        } catch (NullPointerException e) {
+            flag = true;
+        }
+        // then
+        assert flag : "NullPointerException not thrown";
+    }
 
 
 }
